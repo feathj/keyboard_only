@@ -1,0 +1,73 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  </head>
+  <body>
+    <h1>A11y Keyboard Only Gotchas</h1>
+
+    <h2>Tab Order Problems</h2>
+    <div id="tab-order-1">
+      <h3>Demo 1</h3>
+      <input id="to-input-1" placeholder="1"></input>
+      <input id="to-input-2" placeholder="3"></input>
+    </div>
+    <div id="tab-order-2">
+      <h3>Demo 2</h3>
+      <input placeholder="4"></input>
+      <input placeholder="5" style="position: relative; float: left;"></input>
+      <input placeholder="6"></input>
+    </div>
+    <div id="tab-order-3">
+      <h3>Demo 3</h3>
+      <input placeholder="7"></input>
+      <input placeholder="8" tabindex="1"></input>
+      <input placeholder="9"></input>
+    </div>
+
+    <h2>Focus Traps</h2>
+    <div id="focus-trap-1">
+      <button id="focus-trap-1-btn">Open Dialog</button>
+      <div id="dialog" title="Basic dialog" style="display:none;">
+        <p>This is a test dialog with some stuffs</p>
+        <button id="dialog-close">close</button>
+      </div>
+    </div>
+
+    <h2>Reverse Track Problems</h2>
+    <div id="reverse-track-1">
+      <input id="r-input-1" placeholder="10"></input>
+      <input id="r-input-2" tabindex="-1" placeholder="12"></input>
+      <input id="r-input-3" placeholder="13"></input>
+    </div>
+
+  </body>
+  <script type="text/javascript">
+    window.onload = function() {
+      document.getElementById('to-input-1').focus(); // Explicit focus bad, just band-aid
+      // Tab-order-1
+      var i2 = document.getElementById('to-input-2');
+      var i3 = document.createElement('input');
+      i3.setAttribute('placeholder', '2');
+      document.getElementById('tab-order-1').insertBefore(i3, i2);
+
+      // Focus-traps
+      document.getElementById('focus-trap-1-btn').onclick = function() {
+        var focusVictim = document.activeElement;
+        $('#dialog').dialog();
+        document.getElementById('dialog-close').focus();
+        document.getElementById('dialog-close').onclick = function() {
+          $(".ui-dialog").remove(); //$("#dialog").dialog("close");
+          focusVictim.focus();
+        }
+      }
+
+      // Reverse Track Problems
+      // This is obviously stoooooopid
+      document.getElementById('r-input-1').onblur = function() {
+        document.getElementById('r-input-2').focus();
+      }
+    }
+  </script>
+</html>
